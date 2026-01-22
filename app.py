@@ -1,36 +1,34 @@
 from flask import Flask, render_template, request
-import numpy as np
 import joblib
+import numpy as np
+import os
 
 app = Flask(__name__)
 
-# Load model and scaler
-model = joblib.load('model/house_price_model.pkl')
-scaler = joblib.load('model/scaler.pkl')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "model", "house_price_model.pkl")
+model = joblib.load(MODEL_PATH)
 
-@app.route('/', methods=['GET', 'POST'])
-def home():
-    prediction = None
+@app.route("/", methods=["GET", "HEAD"])
+def index():
+    return render_template("index.html", prediction=None)
 
-    if request.method == 'POST':
-        try:
-            OverallQual = float(request.form['OverallQual'])
-            GrLivArea = float(request.form['GrLivArea'])
-            TotalBsmtSF = float(request.form['TotalBsmtSF'])
-            GarageCars = float(request.form['GarageCars'])
-            FullBath = float(request.form['FullBath'])
-            YearBuilt = float(request.form['YearBuilt'])
+@app.route("/predict", methods=["POST"])
+def predict():
+    try:
+        features = [
+            float(request.form["OverallQual"]),
+            float(request.form["GrLivArea"]),
+            float(request.form["TotalBsmtSF"]),
+            float(request.form["GarageCars"]),
+            float(request.form["FullBath"]),
+            float(request.form["YearBuilt"]),
+        ]
 
-            input_data = np.array([[OverallQual, GrLivArea, TotalBsmtSF,
-                                    GarageCars, FullBath, YearBuilt]])
+        final_input = np.array([features])
+        prediction = model.predict(final_input)[0]
 
-            input_scaled = scaler.transform(input_data)
-            prediction = model.predict(input_scaled)[0]
+        return render_template("index.html", prediction=prediction)
 
-        except:
-            prediction = "Invalid input, please check your values."
-
-    return render_template('index.html', prediction=prediction)
-
-if __name__ == '__main__':
-    app.run(debug=True)
+    except Exception as e:
+        return render_template("index.html", prediction=f"Error: {e}")
