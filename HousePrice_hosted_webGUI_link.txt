@@ -1,0 +1,6 @@
+Name: Anene Chinecherem
+Matric No: 22CG031836
+Machine Learning Algorithm Used: Random Forest Regressor
+Model persistence method used: Joblib
+Live URL of the hosted application: https://houseprice-project-anene-chinecherem-cqgq.onrender.com/
+GitHub repository link: https://github.com/Neche-rem/HousePrice_Project_Anene_Chinecherem_22CG031836
